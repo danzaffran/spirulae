@@ -85,29 +85,36 @@ CodeGenerator.langs.glsl = {
         {
             name: 'mf_lgamma_1',
             source: "float mf_lgamma_1(float x) {\n\
-    return (x-0.48925102)*log(x)-x+0.05778111/x+0.97482605-0.06191856*log(log(x+1.0)+1.0);\n\
+    const float a = 2.71828019792;\n\
+    const float b = 0.907773596328;\n\
+    const float c2 = -0.00919535906159;\n\
+    const float c1 = 0.121690264777;\n\
+    const float c0 = 1.35937335302;\n\
+    const float d6 = -0.0399093877694;\n\
+    const float d5 = 0.119026263228;\n\
+    const float d4 = 12.3446983117;\n\
+    const float d3 = 29.6165961724;\n\
+    const float d2 = 13.8879332403;\n\
+    const float d1 = 7.19774617753;\n\
+    float u = sqrt(x+b)/2.718281828459;\n\
+    float f = ((c2*u+c1)*u+c0)/((((((d6*u+d5)*u+d4)*u+d3)*u+d2)*u+d1)*u+1.0);\n\
+    return (x-1.0)*(log(x+a)-1.0)-log(x)+f*x*(x-1.0);\n\
 }"
         },
         {
             name: 'gamma',
             source: "float mf_gamma(float x) {\n\
     const float pi = 3.14159265358979;\n\
-    if (x >= 1.0) return exp(mf_lgamma_1(x));\n\
-    if (x < 0.0) return pi/sin(pi*x)*exp(-mf_lgamma_1(1.0-x));\n\
-    float s = min(1.0-x, 1.0);\n\
-    s = s*s*s*(10.0-s*(15.0-6.0*s));\n\
-    return exp(mix(mf_lgamma_1(x), log(pi/sin(pi*x))-mf_lgamma_1(1.0-x), s));\n\
+    return x > 0.0 ? exp(mf_lgamma_1(x)) :\n\
+        pi/sin(pi*x)*exp(-mf_lgamma_1(1.0-x));\n\
 }"
         },
         {
             name: 'loggamma',
             source: "float mf_loggamma(float x) {\n\
     const float pi = 3.14159265358979;\n\
-    if (x >= 1.0) return mf_lgamma_1(x);\n\
-    if (x < 0.0) return log(pi/abs(sin(pi*x)))-mf_lgamma_1(1.0-x);\n\
-    float s = min(1.0-x, 1.0);\n\
-    s = s*s*s*(10.0-s*(15.0-6.0*s));\n\
-    return mix(mf_lgamma_1(x), log(pi/abs(sin(pi*x)))-mf_lgamma_1(1.0-x), s);\n\
+    return x > 0.0 ? mf_lgamma_1(x) :\n\
+        -log(abs(sin(pi*x))/pi)-mf_lgamma_1(1.0-x);\n\
 }"
         },
         {

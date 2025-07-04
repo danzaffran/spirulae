@@ -773,7 +773,6 @@ BuiltInMathFunctions.rawMathFunctionsShared = [
         C: ['lgammaRe(a1,b1)', 'lgammaIm(a1,b1)'],
         glsl: 'mf_loggamma(%1)',
         glslExt: ['mf_lgamma_1', 'loggamma'],
-        glslExt: ['mc_lgamma'],
         cppf: 'lgamma(%1)',
         cppd: 'lgamma(%1)',
         js: null,
