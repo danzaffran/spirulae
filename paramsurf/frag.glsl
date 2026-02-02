@@ -357,6 +357,28 @@ void main() {
     col = pow(col, vec3(1./2.2));
 #endif // {%XRAY%}
     col -= vec3(1.5/255.)*fract(0.13*gl_FragCoord.x*gl_FragCoord.y);  // reduce "stripes"
+// --- animated point in (u,v) space ---
+// If iTime(0) exists in your shared includes (it should, since equations can use it),
+// this “point” will animate without any JS changes.
+float t_anim = iTime(0);
+
+// A simple looping path on the torus parameter domain:
+vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
+
+// Size in UV units (tweak to taste)
+float r_uv = 0.015;
+
+// If u wraps (0..1), you probably want wrapping distance in u:
+float du = abs(vUv.x - uvp.x);
+du = min(du, 1.0 - du);
+float dv = abs(vUv.y - uvp.y);
+float d = length(vec2(du, dv));
+
+float m = 1.0 - smoothstep(r_uv * 0.8, r_uv, d);
+
+// Point color (bright red), lightly “emissive”
+vec3 pointCol = vec3(1.0, 0.2, 0.2);
+col = mix(col, pointCol, m);
     fragColor = vec4(clamp(col,0.,1.), 1.0);
 }
 
