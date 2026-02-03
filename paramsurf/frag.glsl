@@ -363,7 +363,7 @@ void main() {
 // --- animated point in (u,v) space ---
 // If iTime(0) exists in your shared includes (it should, since equations can use it),
 // this “point” will animate without any JS changes.
-float t_anim = iTime(0);
+float t_anim = iTime;
 
 // A simple looping path on the torus parameter domain:
 vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
