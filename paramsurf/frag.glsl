@@ -9,6 +9,7 @@ out vec4 fragColor;
 uniform mat4 transformMatrix;
 uniform vec2 screenCenter;
 uniform float uScale;
+uniform float uTime;
 
 uniform float ZERO;  // used in loops to reduce compilation time
 #define PI 3.1415926
@@ -357,28 +358,32 @@ void main() {
     col = pow(col, vec3(1./2.2));
 #endif // {%XRAY%}
     col -= vec3(1.5/255.)*fract(0.13*gl_FragCoord.x*gl_FragCoord.y);  // reduce "stripes"
+
+
 // --- animated point in (u,v) space ---
-float t_anim = iTime(0);
+    // Use uTime uniform instead of iTime function
+    float t_anim = uTime;
+    
+    // A simple looping path on the torus parameter domain:
+    vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
+    
+    // Size in UV units (much larger now!)
+    float r_uv = 0.06;
+    
+    // If u wraps (0..1), you probably want wrapping distance in u:
+    float du = abs(vUv.x - uvp.x);
+    du = min(du, 1.0 - du);
+    float dv = abs(vUv.y - uvp.y);
+    float d = length(vec2(du, dv));
+    
+    // Stronger, more visible blend with a bright core
+    float m = 1.0 - smoothstep(r_uv * 0.5, r_uv, d);
+    float core = 1.0 - smoothstep(0.0, r_uv * 0.3, d);
+    
+    // Point color (bright glowing red/orange)
+    vec3 pointCol = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 1.0, 0.5), core);
+    col = mix(col, pointCol, m * 0.9 + core);
 
-// A simple looping path on the torus parameter domain:
-vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
-
-// Size in UV units (much larger now!)
-float r_uv = 0.06;
-
-// If u wraps (0..1), you probably want wrapping distance in u:
-float du = abs(vUv.x - uvp.x);
-du = min(du, 1.0 - du);
-float dv = abs(vUv.y - uvp.y);
-float d = length(vec2(du, dv));
-
-// Stronger, more visible blend with a bright core
-float m = 1.0 - smoothstep(r_uv * 0.5, r_uv, d);
-float core = 1.0 - smoothstep(0.0, r_uv * 0.3, d);
-
-// Point color (bright glowing red/orange)
-vec3 pointCol = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 1.0, 0.5), core);
-col = mix(col, pointCol, m * 0.9 + core);
     fragColor = vec4(clamp(col,0.,1.), 1.0);
 }
 
