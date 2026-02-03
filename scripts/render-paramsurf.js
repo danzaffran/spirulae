@@ -340,10 +340,7 @@ function initRenderer() {
     var oldScreenCenter = { x: -1, y : -1 };
     var startTime = performance.now();
     function render() {
-        var timeDependent = true;
-        try {
-            timeDependent = /\(iTime\)/.test(updateShaderFunction.prevCode.vsSource);
-        } catch (e) { }
+       var timeDependent = true; // ALWAYS animate
         if (timeDependent && state.iTime == -1.0)
             startTime = performance.now();
         var screenCenter = state.defaultScreenCenter ? calcScreenCenter() : state.screenCenter;
@@ -359,15 +356,8 @@ function initRenderer() {
                 calcTransformMatrix(state, true), state.rTheta, state.rPhi);
             drawScene(screenCenter, transformMatrix, lightDir);
             renderLegend(state);
-            if (timeDependent) {
-                state.renderNeeded = true;
-                state.iTime = 0.001 * (performance.now() - startTime);
-            }
-            else {
-                state.renderNeeded = false;
-                startTime = performance.now();
-                state.iTime = -1.0;
-            }
+            state.renderNeeded = true;
+state.iTime = 0.001 * (performance.now() - startTime);
         }
         oldScreenCenter = screenCenter;
         requestAnimationFrame(render);
