@@ -9,7 +9,7 @@ out vec4 fragColor;
 uniform mat4 transformMatrix;
 uniform vec2 screenCenter;
 uniform float uScale;
-uniform float uTime;
+
 
 uniform float ZERO;  // used in loops to reduce compilation time
 #define PI 3.1415926
@@ -361,28 +361,27 @@ void main() {
 
 
 // --- animated point in (u,v) space ---
-    // Use uTime uniform instead of iTime function
-    float t_anim = uTime;
-    
-    // A simple looping path on the torus parameter domain:
-    vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
-    
-    // Size in UV units (much larger now!)
-    float r_uv = 0.06;
-    
-    // If u wraps (0..1), you probably want wrapping distance in u:
-    float du = abs(vUv.x - uvp.x);
-    du = min(du, 1.0 - du);
-    float dv = abs(vUv.y - uvp.y);
-    float d = length(vec2(du, dv));
-    
-    // Stronger, more visible blend with a bright core
-    float m = 1.0 - smoothstep(r_uv * 0.5, r_uv, d);
-    float core = 1.0 - smoothstep(0.0, r_uv * 0.3, d);
-    
-    // Point color (bright glowing red/orange)
-    vec3 pointCol = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 1.0, 0.5), core);
-    col = mix(col, pointCol, m * 0.9 + core);
+// If iTime(0) exists in your shared includes (it should, since equations can use it),
+// this “point” will animate without any JS changes.
+float t_anim = iTime(0);
+
+// A simple looping path on the torus parameter domain:
+vec2 uvp = vec2(fract(0.08 * t_anim), 0.5 + 0.18 * sin(0.7 * t_anim));
+
+// Size in UV units (tweak to taste)
+float r_uv = 0.015;
+
+// If u wraps (0..1), you probably want wrapping distance in u:
+float du = abs(vUv.x - uvp.x);
+du = min(du, 1.0 - du);
+float dv = abs(vUv.y - uvp.y);
+float d = length(vec2(du, dv));
+
+float m = 1.0 - smoothstep(r_uv * 0.8, r_uv, d);
+
+// Point color (bright red), lightly “emissive”
+vec3 pointCol = vec3(1.0, 0.2, 0.2);
+col = mix(col, pointCol, m);
 
     fragColor = vec4(clamp(col,0.,1.), 1.0);
 }
